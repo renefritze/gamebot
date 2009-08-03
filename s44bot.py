@@ -5,7 +5,6 @@ import string
 from utilities import *
 from time import *
 from os import system
-from pychart import *
 import sys
 
 class Main:
