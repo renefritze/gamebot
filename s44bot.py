@@ -76,8 +76,7 @@ class Main:
 					self.nicklist.append(user)
 				if user in self.nicklist_s44:
 					self.nicklist_s44.remove(user)
-		if command.startswith("SAID") and len(args) > 1:
-			print args, command
+		if command == "SAIDPRIVATE" and len(args) > 1:
 			if args[0] in self.admins:
 				if args[1] == "metricsave":
 					self.ondestroy()
