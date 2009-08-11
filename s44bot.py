@@ -46,6 +46,20 @@ class Main:
 		file_users.flush()
 		file_users.close()
 
+	def SendUsers(self, nick, socket ):
+		users = self.nicklist_s44[:]
+		users.sort()
+		num = 0
+		line = ""
+		socket.send('sayprivate %s %d users found:\n'%(nick,len(self.nicklist_s44) ))
+		for user in users :
+			line += user + "\t"
+			num += 1
+			if num % 10 == 0 :
+				socket.send('sayprivate %s %s \n'%(nick,line ))
+				line = ""
+		socket.send('sayprivate %s %s \n'%(nick,line ))
+
 	def SendMetric(self, nick, socket ):
 		total = 0
 
@@ -70,7 +84,7 @@ class Main:
 				if not user in self.nicklist:
 					if not user in self.nicklist_s44:
 						self.nicklist_s44.append(user)
-			if chan == "main" :
+			elif chan in self.chans :
 				if not user in self.nicklist:
 					self.nicklist.append(user)
 				if user in self.nicklist_s44:
@@ -81,6 +95,8 @@ class Main:
 					self.ondestroy()
 				if args[1] == "metric":
 					self.SendMetric( args[0], socket )
+				if args[1] == "users":
+					self.SendUsers( args[0], socket )
 
 	def ondestroy( self ):
 		print "saving files"
