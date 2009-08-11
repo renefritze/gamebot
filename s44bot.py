@@ -48,7 +48,7 @@ class Main:
 
 	def SendUsers(self, nick, socket ):
 		users = self.nicklist_s44[:]
-		users.sort()
+		users.sort(key=str.lower)
 		num = 0
 		line = ""
 		socket.send('sayprivate %s %d users found:\n'%(nick,len(self.nicklist_s44) ))
