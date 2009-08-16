@@ -266,6 +266,19 @@ class S44DB(object):
             names.append( name )
         for name in names:
             self.EndUsersession( name )
+            
+    def GetLobbyUsers( self, lobbyname ):
+        session = self.sessionmaker()
+        lobby = session.query( Lobby ).filter( Lobby.name == lobbyname ).first()
+        ret = 0
+        if lobby:
+            ret = session.query( User ).filter( User.lobby_id == lobby.id ).count()
+        session.close()
+        return ret
         
-        
+    def GetAllUsers( self ):
+        session = self.sessionmaker()
+        ret = session.query( User ).count()
+        session.close()
+        return ret        
         

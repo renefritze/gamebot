@@ -98,6 +98,13 @@ class Main:
 					if revision < self.min_revision :
 						socket.send('sayprivate '+source_nick + ' ' + self.update_notice +'\n' )
 
+	def SendLobbyMetric(self, nick, socket, lobby ):
+		lobbyusers = self.db.GetLobbyUsers( lobby )
+		allusers = self.db.GetAllUsers() * 1.0
+		if lobbyusers > 0:
+			socket.send('sayprivate %s percentage of %s users:\t\t %f\n'%(nick, lobby, lobbyusers/allusers ) )
+		socket.send('sayprivate %s absolute number of %s users:\t %d\n'%(nick, lobby, lobbyusers ) )
+		socket.send('sayprivate %s total number of users:\t\t\t\t\t %d\n'%(nick, allusers ) )
 
 	def oncommandfromserver(self,command,args,socket):
 		if command == "JOINED" :
@@ -117,19 +124,23 @@ class Main:
 				if args[1] == "metricsave":
 					self.ondestroy()
 				if args[1] == "metric":
-					self.SendMetric( args[0], socket )
+					if len( args ) > 2:
+						if args[2] == 'sl':
+							args[2] = 'SpringLobby'
+						self.SendLobbyMetric( args[0], socket, args[2] )
+					else:
+						self.SendMetric( args[0], socket )
 				if args[1] == "users":
 					self.SendUsers( args[0], socket )
 		if command == "ADDUSER" and len(args) > 2:
 			self.db.AddUser(args[0], args[1], args[2] )
-			self.db.StartUsersession(args[0])
+			self.db.StartUsersession( args[0] )
 		if command == "REMOVEUSER" and len(args) > 0:
 			self.db.EndUsersession(args[0])
 		if command.startswith("SAID") and len(args) > 1:
 			print args, command
 			if args[1] == "stats.report":
 				self.CmdStatsReport( socket, command, args, 'SpringLobby' )
-		#self.db.Commit()
 
 	def ondestroy( self ):
 		print "saving files"
