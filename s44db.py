@@ -21,6 +21,7 @@ class User(Base):
     lobby_id = Column( Integer, ForeignKey( 'lobbies.id' ) )
     lobbyrev_id = Column( Integer, ForeignKey( 'lobbyrevisions.id' ) )
     os_id = Column( Integer, ForeignKey( 'os.id' ) )
+    primary_game = Column( String( 50 ) )
     
     lobby = relation( 'Lobby', backref=backref( 'users', order_by=id) )
     lobbyrev = relation( 'LobbyRevision', backref=backref( 'users', order_by=id) )
@@ -32,6 +33,7 @@ class User(Base):
         self.nick = nick
         self.country = country
         self.cpu = cpu
+        self.primary_game = 'none'
      
         
 class Usersession(Base):
@@ -280,5 +282,24 @@ class S44DB(object):
         session = self.sessionmaker()
         ret = session.query( User ).count()
         session.close()
-        return ret        
+        return ret    
+    
+    def SetPrimaryGame( self, nick, game ):    
+        session = self.sessionmaker()
+        user = session.query( User ).filter( User.nick == nick ).first()
+        if user:
+            user.primary_game = game
+            session.commit()
+        session.close()   
         
+    def GetGameUsers( self, game_name ):
+        session = self.sessionmaker()
+        users = session.query( User ).filter( User.primary_game == game_name )
+        ret = []
+        for user in users:
+            ret.append( user.nick )
+        session.close()
+        return ret
+         
+         
+         
