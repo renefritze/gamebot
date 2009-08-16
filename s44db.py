@@ -259,6 +259,13 @@ class S44DB(object):
 
         session.commit()
         session.close()
+    
+    def CloseAllSessions(self):
+        names = []
+        for name in self.usersessions:
+            names.append( name )
+        for name in names:
+            self.EndUsersession( name )
         
         
         

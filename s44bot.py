@@ -134,6 +134,7 @@ class Main:
 	def ondestroy( self ):
 		print "saving files"
 		self.saveUserFile()
+		self.db.CloseAllSessions()
 
 	def onload(self,tasc):
 		self.app = tasc.main
