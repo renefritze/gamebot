@@ -44,11 +44,13 @@ class Charts(object):
         ticks = []
         for rev in lobbyrevs:
             num = session.query( User ).filter( User.lobbyrev_id == rev.id ).count()
-            data += ( ( rev.id, num ) )
+            print rev.id, num
+            el = [ rev.id, num ]
+            data.append(el)
             ticks.append( dict(v=rev.id, label=rev.revision) )
             
 
-        dataSet = ( ('Revisions', [(i, l) for i, l in enumerate(data)]), )
+        dataSet = ( ('Revisions', data), )
                    
         options = {
                    'legend': {'hide': False},
@@ -68,6 +70,7 @@ class Charts(object):
                    }
         chart = pycha.bar.VerticalBarChart(surface, options) 
         print data
+        print dataSet
         #dataSet = ( ( 'set1', data ) )
         chart.addDataset(dataSet)
         chart.render()
