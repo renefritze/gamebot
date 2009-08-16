@@ -131,7 +131,6 @@ class S44DB(object):
         print 'db init;'
      
     def AddUser(self, nick, country, cpu ):
-        print 'add ' + nick
         session = self.sessionmaker()
                
         user = session.query( User ).filter( User.nick == nick ).first()
@@ -153,7 +152,6 @@ class S44DB(object):
         session.close()
         
     def UpdateUser(self, nick, lobbyname, lobbyrev_name, osname ):
-        print 'update ' + nick
         session = self.sessionmaker()
         
         user = session.query( User ).filter( User.nick == nick ).first()
