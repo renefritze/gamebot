@@ -287,7 +287,7 @@ class S44DB(object):
     def SetPrimaryGame( self, nick, game ):    
         session = self.sessionmaker()
         user = session.query( User ).filter( User.nick == nick ).first()
-        if user:
+        if user and user.primary_game != 'multiple':
             user.primary_game = game
             session.commit()
         session.close()   
@@ -300,6 +300,5 @@ class S44DB(object):
             ret.append( user.nick )
         session.close()
         return ret
-         
          
          

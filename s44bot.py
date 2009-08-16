@@ -79,7 +79,7 @@ class Main:
 			if chan == "s44" :			
 				self.db.SetPrimaryGame( user, 's44' )
 			elif chan in self.chans :
-				self.db.SetPrimaryGame( user, 'none' )
+				self.db.SetPrimaryGame( user, 'multiple' )
 		if command == "SAIDPRIVATE" and len(args) > 1:
 			if args[0] in self.admins:
 				if args[1] == "metricsave":
