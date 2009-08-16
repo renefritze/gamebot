@@ -79,15 +79,16 @@ class S44DB(object):
             os = session.query( OperatingSystem ).filter( OperatingSystem.name == osname ).first()
         user.os_id = os.id
 
-        if user.lobby: #previously set lobby? 
+        if user.lobby: #previously set lobby?
             if user.lobby_id != lobby.id:
                 switch = LobbySwitch( user.lobby_id, lobby.id, user.id )
-                session.add( switch )
+                session.add( switch )             
             elif user.lobbyrev_id != lobbyrev.id : #same lobby, but diff rev 
                 update = LobbyUpdate( user.lobbyrev_id, lobbyrev.id, user.id )
-                session.add( update )
+                session.add( update )            
             user.lobbyrev_id = lobbyrev.id
             user.lobby_id = lobby.id
+            
         session.add( user )
         session.commit()
         session.close()

@@ -6,6 +6,7 @@ from utilities import *
 from time import *
 from os import system
 from s44db import S44DB
+from charts import Charts
 
 class Main:
 	chans = []
@@ -93,6 +94,8 @@ class Main:
 						self.SendMetric( args[0], socket )
 				if args[1] == "users":
 					self.SendUsers( args[0], socket )
+				if args[1] == "charts":
+					self.charts.test()
 		if command == "ADDUSER" and len(args) > 2:
 			self.db.AddUser(args[0], args[1], args[2] )
 			self.db.StartUsersession( args[0] )
@@ -105,7 +108,6 @@ class Main:
 
 	def ondestroy( self ):
 		print "saving files"
-		self.saveUserFile()
 		self.db.CloseAllSessions()
 
 	def onload(self,tasc):
@@ -119,4 +121,9 @@ class Main:
 		self.db = S44DB(parselist(self.app.config["dbuser"],',')[0] ,
                       parselist(self.app.config["dbpw"],',')[0],
                       parselist(self.app.config["dbname"],',')[0] )
+		self.charts = Charts(parselist(self.app.config["dbuser"],',')[0] ,
+                      parselist(self.app.config["dbpw"],',')[0],
+                      parselist(self.app.config["dbname"],',')[0],
+                      '/tmp/charts/' )
+		self.charts.test()
 		#self.db.PrintAll()
