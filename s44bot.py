@@ -76,6 +76,29 @@ class Main:
 		#percent = len(self.win_list)/ float(len(self.nicklist_s44))
 		#socket.send('sayprivate %s percentage (of sl users) on other: %f (%d abs)\n'%(nick,percent,len(self.win_list)))
 
+	def CmdStatsReport(self, socket, cmd_name, cmd_params, lobby):
+		source_nick = cmd_params[0]
+		#socket.send('say %s %s %s \n'%(self.stats_channel, source_nick, ' '.join(cmd_params) ))
+		print 'say %s %s %s \n'%(self.stats_channel, source_nick, ' '.join(cmd_params) )
+		params=cmd_params[2:]
+		revision = params[0]
+		os = 'Unknown'
+		if len(params) > 1:
+			os = params[2]
+		self.db.UpdateUser(source_nick, lobby, revision, os)
+		
+		#update notificatiosn below
+		if revision == 'v0.0.1-svn':
+			socket.send('sayprivate '+source_nick + ' ' + self.update_notice +'\n')
+		else :
+			revision = revision.split('.')
+			if len(revision) > 3:
+				if revision[3].isdigit() :
+					revision = int(revision[3])
+					if revision < self.min_revision :
+						socket.send('sayprivate '+source_nick + ' ' + self.update_notice +'\n' )
+
+
 	def oncommandfromserver(self,command,args,socket):
 		if command == "JOINED" :
 			chan = args[0]
@@ -104,8 +127,8 @@ class Main:
 			self.db.EndUsersession(args[0])
 		if command.startswith("SAID") and len(args) > 1:
 			print args, command
-			#if args[1] == "stats.report":
-				#self.CmdStatsReport( socket, command, args )
+			if args[1] == "stats.report":
+				self.CmdStatsReport( socket, command, args, 'SpringLobby' )
 		#self.db.Commit()
 
 	def ondestroy( self ):
@@ -116,6 +139,9 @@ class Main:
 		self.app = tasc.main
 		self.chans = parselist(self.app.config["channels"],',')
 		self.admins = parselist(self.app.config["admins"],',')
+		self.update_notice = parselist(self.app.config["update_notice"],',')[0]
+		self.stats_channel = parselist(self.app.config["stats_channel"],',')[0]
+		self.min_revision = int( parselist(self.app.config["min_revision"],',')[0] )
 		system('touch users.txt users_s44.txt' )
 		self.loadUserFile()
 		self.db = S44DB(parselist(self.app.config["dbuser"],',')[0] ,
