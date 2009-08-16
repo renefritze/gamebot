@@ -29,7 +29,7 @@ class Charts(object):
         print 'db init;'      
         
     def test(self):
-        width, height = (500, 400)
+        width, height = (1500, 400)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         session = self.sessionmaker()
         
@@ -49,32 +49,32 @@ class Charts(object):
             data.append(el)
             ticks.append( dict(v=rev.id, label=rev.revision) )
             
-
-        dataSet = ( ('Revisions', data), )
-                   
+        dataSet = ( ('Revisions', data), )    
         options = {
-                   'legend': {'hide': False},
+                   'legend': {'hide': True},
                    'background': {'color': '#f0f0f0'},
                    'axis': {
                             'x': {
                                 'ticks': ticks  ,
-                                'label': 'huhu',
-                                'rotate': 0,
+                                'label': 'Revisionstrings',
+                                'rotate': 45,
                             },
                             'y': {
-                                'tickCount': 10,
+                                'tickCount': 20,
                                 'rotate': 0,
-                                'label': 'huhu',
+                                'label': '#users',
                             }
-                        }
+                        },
+                    'padding': {
+                        'bottom': 65,
+                    },
+                    'title': 'SpringLobby revisions in use'
+
                    }
         chart = pycha.bar.VerticalBarChart(surface, options) 
-        print data
-        print dataSet
-        #dataSet = ( ( 'set1', data ) )
         chart.addDataset(dataSet)
         chart.render()
-        surface.write_to_png( self.datadir + '/output.png')
+        surface.write_to_png( self.datadir + '/revisions.png')
         session.close()
         
  
