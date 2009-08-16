@@ -5,7 +5,7 @@ import string
 from utilities import *
 from time import *
 from os import system
-import sys
+from s44db import S44DB
 
 class Main:
 	chans = []
@@ -97,6 +97,12 @@ class Main:
 					self.SendMetric( args[0], socket )
 				if args[1] == "users":
 					self.SendUsers( args[0], socket )
+		if command == "ADDUSER" and len(args) > 2:
+			self.db.AddUser(args[0], args[1], args[2], "", "")
+			self.db.StartUsersession(args[0])
+		if command == "REMOVEUSER" and len(args) > 0:
+			self.db.EndUsersession(args[0])
+		#self.db.Commit()
 
 	def ondestroy( self ):
 		print "saving files"
@@ -108,3 +114,7 @@ class Main:
 		self.admins = parselist(self.app.config["admins"],',')
 		system('touch users.txt users_s44.txt' )
 		self.loadUserFile()
+		self.db = S44DB(parselist(self.app.config["dbuser"],',')[0] ,
+                      parselist(self.app.config["dbpw"],',')[0],
+                      parselist(self.app.config["dbname"],',')[0] )
+		self.db.PrintAll()
