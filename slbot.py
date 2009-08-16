@@ -119,4 +119,4 @@ class Main:
 		self.db = S44DB(parselist(self.app.config["dbuser"],',')[0] ,
                       parselist(self.app.config["dbpw"],',')[0],
                       parselist(self.app.config["dbname"],',')[0] )
-		self.db.PrintAll()
+		#self.db.PrintAll()
