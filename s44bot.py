@@ -98,10 +98,14 @@ class Main:
 				if args[1] == "users":
 					self.SendUsers( args[0], socket )
 		if command == "ADDUSER" and len(args) > 2:
-			self.db.AddUser(args[0], args[1], args[2], "", "")
+			self.db.AddUser(args[0], args[1], args[2] )
 			self.db.StartUsersession(args[0])
 		if command == "REMOVEUSER" and len(args) > 0:
 			self.db.EndUsersession(args[0])
+		if command.startswith("SAID") and len(args) > 1:
+			print args, command
+			#if args[1] == "stats.report":
+				#self.CmdStatsReport( socket, command, args )
 		#self.db.Commit()
 
 	def ondestroy( self ):
