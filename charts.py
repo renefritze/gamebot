@@ -44,6 +44,8 @@ class Charts(object):
         ticks = []
         for rev in lobbyrevs:
             num = session.query( User ).filter( User.lobbyrev_id == rev.id ).count()
+            if num < 5:
+                continue
             print rev.id, num
             el = [ rev.id, num ]
             data.append(el)
@@ -57,7 +59,7 @@ class Charts(object):
                             'x': {
                                 'ticks': ticks  ,
                                 'label': 'Revisionstrings',
-                                'rotate': 45,
+                                'rotate': 60,
                             },
                             'y': {
                                 'tickCount': 20,
@@ -66,7 +68,7 @@ class Charts(object):
                             }
                         },
                     'padding': {
-                        'bottom': 65,
+                        'bottom': 125,
                     },
                     'title': 'SpringLobby revisions in use'
 
