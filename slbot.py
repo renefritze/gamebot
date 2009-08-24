@@ -75,7 +75,7 @@ class Main:
 
 		socket.send('sayprivate %s session stats:\n'%(nick) )
 		stats = self.db.GetSessionStats()
-		for key,num in stats:
+		for key,num in stats.items():
 			socket.send('sayprivate %s %s sessions:\t\t\t\t\t %d\n'%(nick, key, num ) )
 
 	def oncommandfromserver(self,command,args,socket):
@@ -126,9 +126,9 @@ class Main:
 		self.db = S44DB(parselist(self.app.config["dbuser"],',')[0] ,
                       parselist(self.app.config["dbpw"],',')[0],
                       parselist(self.app.config["dbname"],',')[0] )
-		self.charts = Charts(parselist(self.app.config["dbuser"],',')[0] ,
-                      parselist(self.app.config["dbpw"],',')[0],
-                      parselist(self.app.config["dbname"],',')[0],
-                      '/tmp/charts/' )
-		self.charts.test()
+		#self.charts = Charts(parselist(self.app.config["dbuser"],',')[0] ,
+        #              parselist(self.app.config["dbpw"],',')[0],
+        #              parselist(self.app.config["dbname"],',')[0],
+        #              '/tmp/charts/' )
+		#self.charts.test()
 		#self.db.PrintAll()

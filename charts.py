@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on Aug 16, 2009
 
@@ -36,7 +37,7 @@ class Charts(object):
         session = self.sessionmaker()
 
         query = session.query( User ).filter( User.primary_game == name )
-        today = query.filter( and_(User. ) )
+        #today = query.filter( and_(User. ) )
         data = []
         ticks = []
         for rev in lobbyrevs:
