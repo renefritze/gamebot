@@ -77,7 +77,7 @@ class Main:
 		stats = self.db.GetSessionStats()
 		total = stats['all']
 		for key,num in stats.items():
-			socket.send('sayprivate %s %8d %s \tsessions (%f\%)\n'%(nick, num, key, ( num / float(total) ) * 100 ) )
+			socket.send('sayprivate %s %8i\t %s sessions \t(%5f)\n'%(nick, num, key, ( num / float(total) ) * 100 ) )
 
 	def oncommandfromserver(self,command,args,socket):
 		if command == "JOINED" :
