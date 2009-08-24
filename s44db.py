@@ -203,5 +203,6 @@ class S44DB(object):
 		lobbies = session.query( Lobby ).all()
 		for lobby in lobbies:
 			ret[lobby.name] = session.query( Usersession ).filter( User.lobby_id == lobby.id ).count()
+		ret['all'] = session.query( Usersession ).count()
 		return ret
          
