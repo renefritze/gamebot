@@ -73,6 +73,11 @@ class Main:
 		socket.send('sayprivate %s absolute number of %s users:\t %d\n'%(nick, lobby, lobbyusers ) )
 		socket.send('sayprivate %s total number of users:\t\t\t\t\t %d\n'%(nick, allusers ) )
 
+		socket.send('sayprivate %s session stats:\n'%(nick) )
+		stats = self.db.GetSessionStats()
+		for key,num in stats:
+			socket.send('sayprivate %s %s sessions:\t\t\t\t\t %d\n'%(nick, key, num ) )
+
 	def oncommandfromserver(self,command,args,socket):
 		if command == "JOINED" :
 			chan = args[0]

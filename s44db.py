@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on Aug 15, 2009
 
@@ -197,5 +198,12 @@ class S44DB(object):
             ret.append( user.nick )
         session.close()
         return ret
-         
+
+	def GetSessionStats( self ):
+		ret = dict()
+		session = self.sessionmaker()
+        lobbies = session.query( Lobby ).all()
+		for lobby in lobbies:
+			ret[lobby.name] = session.query( Usersession ).filter( User.lobby_id == lobby.id ).count()
+		ret['all'] = session.query( Usersession ).count()
          
