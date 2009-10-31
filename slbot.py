@@ -53,7 +53,9 @@ class Main:
 		if len(params) > 1:
 			os = params[2]
 		self.db.UpdateUser(source_nick, lobby, revision, os)
-		
+		socket.send('say %s %s %s %s %s\n'%(self.stats_channel,source_nick, lobby, revision, os))
+	
+
 		#update notificatiosn below
 		if revision == 'v0.0.1-svn':
 			socket.send('sayprivate '+source_nick + ' ' + self.update_notice +'\n')
