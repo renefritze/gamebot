@@ -201,14 +201,10 @@ class S44DB(object):
 		ret = dict()
 		session = self.sessionmaker()
 		lobbies = session.query( Lobby ).all()
-		susers = session.query( Usersession ).all()
-		for lobby in lobbies:
-			#session.query(User).add_entity(Address).outerjoin(addresses).filter(Address.type=='home')
-			num = 0
-			for suser in susers:
-				if suser.user.lobby_id == lobby.id:
-					num += 1
-			ret[lobby.name] = num
+
 		ret['all'] = session.query( Usersession ).count()
+
+		for lobby in lobbies:
+			ret[lobby.name] = session.query(Usersession, User).filter(Usersession.user_id == User.id ).filter(lobby.id == User.lobby_id ).count()
 		return ret
          
