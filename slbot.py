@@ -80,6 +80,14 @@ class Main:
 		total = stats['all']
 		for key,num in stats.items():
 			socket.send('sayprivate %s %8i\t %s sessions \t(%5f)\n'%(nick, num, key, ( num / float(total) ) * 100 ) )
+		from datetime import datetime,timedelta
+		since = datetime.now() - timedelta(7)
+		socket.send('sayprivate %s %d updates since %s\n'%(nick,self.db.GetUpdates( since ), str(since) ) )
+		stats = self.db.GetOSstats(lobby)
+		for key,num in stats.items():
+			socket.send('sayprivate %s %d sl users on %s\n'%(nick, num, key) )
+		from datetime import datetime,timedelta
+	
 
 	def oncommandfromserver(self,command,args,socket):
 		if command == "JOINED" :

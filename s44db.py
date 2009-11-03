@@ -196,6 +196,11 @@ class S44DB(object):
 			ret.append( user.nick )
 		session.close()
 		return ret
+	def GetUpdates( self, since ):
+		session = self.sessionmaker()
+		num = session.query( LobbyUpdate ).filter( LobbyUpdate.date >= since ).count()
+		session.close()
+		return num
 
 	def GetSessionStats( self ):
 		ret = dict()
@@ -206,5 +211,16 @@ class S44DB(object):
 
 		for lobby in lobbies:
 			ret[lobby.name] = session.query(Usersession, User).filter(Usersession.user_id == User.id ).filter(lobby.id == User.lobby_id ).count()
+		session.close()
+		return ret
+
+	def GetOSstats( self,lobbyname):
+		ret = dict()
+		session = self.sessionmaker()
+		osses = session.query( OperatingSystem ).all()
+		lobby = session.query( Lobby ).filter( Lobby.name == lobbyname ).first()
+		for os in osses:
+			ret[os.name] = session.query(OperatingSystem,User).filter(lobby.id == User.lobby_id ).filter(os.id == User.os_id ).count() / len(osses)
+		session.close()
 		return ret
          
