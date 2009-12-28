@@ -137,16 +137,21 @@ class Charts:
 	def CurrentSLrevs(self,threshold):
 		session = self.db.sessionmaker()
 		revs_q = session.query( LobbyRevision ).filter( LobbyRevision.revision != 'unknown' )
-		data = dict()
+		datalinux = dict()
+		datawin = dict()
+		win_id = session.query( OperatingSystem ).filter( OperatingSystem.name == 'MicrosoftWindowsNT' ).first().id
+		linux_id = session.query( OperatingSystem ).filter( OperatingSystem.name == 'Linux' ).first().id
 		for rev in revs_q.all():
 			count = session.query( User ).filter( User.lobbyrev_id == rev.id ).count()
 			if count > threshold:
-				data[rev.revision] = count
-		g = bar.VerticalBar(data.keys())
+				datawin[rev.revision] = session.query( User ).filter( User.lobbyrev_id == rev.id ).filter( User.os_id == win_id ).count()
+				datalinux[rev.revision] = session.query( User ).filter( User.lobbyrev_id == rev.id ).filter( User.os_id == linux_id ).count()
+		g = bar.VerticalBar(datawin.keys())
 
 		g.min_y_value=0
 		g.width = 1024
 		g.height = 800
+		g.stack = 'side'
 		g.step_include_first_x_label=True
 		#'area_fill': True,
 		#'show_x_guidelines': True,
@@ -157,7 +162,8 @@ class Charts:
 		g.graph_title='SpringLobby revisions in use'
 		g.graph_subtitle='current'
 	
-		g.add_data({'data': data.values(), 'title': 'meh'})
+		g.add_data({'data': datawin.values(), 'title': 'Windows'})
+		g.add_data({'data': datalinux.values(), 'title': 'Linux'})
 		res = g.burn()
 		f = open( "%s/current-sl-revs.svg"%( self.svgdir ), 'w')
 		f.write(res)
