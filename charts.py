@@ -1,132 +1,67 @@
 # -*- coding: utf-8 -*-
-'''
-Created on Aug 16, 2009
-
-@author: koshi
-'''
-from sqlalchemy import *
-from sqlalchemy.orm import *
-from datetime import datetime
+from svg.charts.plot import Plot
+from datetime import timedelta,datetime,date,time
 from dbentities import *
-import cairo
-import pycha.bar
-from sqlalchemy.sql import and_
 
+class Charts:
 
-class Charts(object):
-    '''
-    classdocs
-    '''
+	def __init__(self,db,svgdir):
+		self.db = db
+		self.svgdir = svgdir
 
+	def GetNewUserCount(self,begin,period):
+		session = self.db.sessionmaker()
+		ret = dict()
+		lobbies = session.query( Lobby ).all()
+		for lobby in lobbies:
+			ret[lobby.name] = []
+		end = begin + period
+		while end < datetime.now():
+			for lobby in lobbies:
+				ret[lobby.name].append( end.day )
+				ret[lobby.name].append( session.query( User ).filter( User.lobby_id == lobby.id ).filter( User.firstlogin <= end ).filter( User.firstlogin >= begin ).count() )
+			end += period
+			begin += period
+		end = datetime.now()
+		#for lobby in lobbies:
+			#ret[lobby.name].append( end.day )
+			#ret[lobby.name].append( session.query( User ).filter( User.lobby_id == lobby.id ).filter( User.firstlogin <= end ).filter( User.firstlogin >= begin ).count() )
+		session.close()
+		return ret
+		
+		
+	def NewUsers(self):
+		g = Plot({
+			'min_x_value': lastweek.day,
+			'min_y_value': 0,
+			'area_fill': True,
+			'stagger_x_labels': True,
+			'stagger_y_labels': True,
+			'show_x_guidelines': True
+		})
+		data = self.GetNewUserCount(lastweek,period)
+		for name in data.keys():
+			print data[name]
+			g.add_data({'data': data[name], 'title': name})
 
-    def __init__(self,dbuser,dbpw,dbname,datadir):
-        '''
-        Constructor
-        '''
-        self.engine = create_engine('mysql://%s:%s@localhost/%s'%(dbuser,dbpw,dbname), echo=False)
-        self.metadata = Base.metadata
-        self.metadata.bind = self.engine
-        self.metadata.create_all(self.engine)
-        self.sessionmaker = sessionmaker( bind=self.engine )
-        self.datadir = datadir
-        print 'db init;'      
-        
-    def GameUsers(self, name = 's44'):
-        width, height = (500, 400)
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-        session = self.sessionmaker()
+		res = g.burn()
+		f = open(r'Plot.py.svg', 'w')
+		f.write(res)
+		f.close()
 
-        query = session.query( User ).filter( User.primary_game == name )
-        #today = query.filter( and_(User. ) )
-        data = []
-        ticks = []
-        for rev in lobbyrevs:
-            num = session.query( User ).filter( User.lobbyrev_id == rev.id ).count()
-            if num < 5:
-                continue
-            print rev.id, num
-            el = [ rev.id, num ]
-            data.append(el)
-            ticks.append( dict(v=rev.id, label=rev.revision) )
-            
-        dataSet = ( ('Revisions', data), )    
-        options = {
-                   'legend': {'hide': True},
-                   'background': {'color': '#f0f0f0'},
-                   'axis': {
-                            'x': {
-                                'ticks': ticks  ,
-                                'label': 'Revisionstrings',
-                                'rotate': 60,
-                            },
-                            'y': {
-                                'tickCount': 20,
-                                'rotate': 0,
-                                'label': '#users',
-                            }
-                        },
-                    'padding': {
-                        'bottom': 125,
-                    },
-                    'title': 'SpringLobby revisions in use'
-
-                   }
-        chart = pycha.bar.VerticalBarChart(surface, options) 
-        chart.addDataset(dataSet)
-        chart.render()
-        surface.write_to_png( self.datadir + '/s44users.png')
-        session.close()
-        
-    def test(self):
-        width, height = (500, 400)
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-        session = self.sessionmaker()
-        
-        lobby = session.query( Lobby ).filter( Lobby.name == 'SpringLobby' ).first()
-        lobbyrevs = []
-        if lobby:
-            lobbyrevs = session.query( LobbyRevision ).filter( LobbyRevision.lobby_id == lobby.id ).all()
-            print 'here ', len(lobbyrevs)
-        else:
-            lobbyrevs = session.query( LobbyRevision ).all()
-        data = []
-        ticks = []
-        for rev in lobbyrevs:
-            num = session.query( User ).filter( User.lobbyrev_id == rev.id ).count()
-            if num < 5:
-                continue
-            print rev.id, num
-            el = [ rev.id, num ]
-            data.append(el)
-            ticks.append( dict(v=rev.id, label=rev.revision) )
-            
-        dataSet = ( ('Revisions', data), )    
-        options = {
-                   'legend': {'hide': True},
-                   'background': {'color': '#f0f0f0'},
-                   'axis': {
-                            'x': {
-                                'ticks': ticks  ,
-                                'label': 'Revisionstrings',
-                                'rotate': 60,
-                            },
-                            'y': {
-                                'tickCount': 20,
-                                'rotate': 0,
-                                'label': '#users',
-                            }
-                        },
-                    'padding': {
-                        'bottom': 125,
-                    },
-                    'title': 'SpringLobby revisions in use'
-
-                   }
-        chart = pycha.bar.VerticalBarChart(surface, options) 
-        chart.addDataset(dataSet)
-        chart.render()
-        surface.write_to_png( self.datadir + '/revisions.png')
-        session.close()
-        
- 
-
+	def All(self):
+		periods = []
+		now = datetime.now()
+		today = datetime.combine(date.today(), time.min ) #datetime( now.year, now.month, now.day )
+		lastweek = today - timedelta(days=7)
+		inc = timedelta(days=1)
+		periods.append = ( lastweek, inc, 'Last week' )
+		lastmonths = today - timedelta(days=90)
+		inc = timedelta(days=7)
+		periods.append = ( lastmonths, inc, 'Last 3 months' )
+		lastyear = today - timedelta(days=365)
+		inc = timedelta(days=30)
+		periods.append = ( lastyear, inc, 'Last year' )
+		
+		
+		
