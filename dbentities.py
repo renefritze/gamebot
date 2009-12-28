@@ -73,8 +73,8 @@ class LobbyUpdate(Base):
 	oldrev_id = Column( Integer, ForeignKey( 'lobbyrevisions.id' ) )
 	newrev_id = Column( Integer, ForeignKey( 'lobbyrevisions.id' ) )
 	user_id = Column( Integer, ForeignKey( 'users.id' ) )
-	#oldrev = relation( LobbyRevision )
-	#newrev = relation( LobbyRevision )
+	oldrev = relation( LobbyRevision, backref='oldrevs', primaryjoin=LobbyRevision.id == oldrev_id )
+	newrev = relation( LobbyRevision, backref='newrevs', primaryjoin=LobbyRevision.id == newrev_id )
 	user = relation( User )
 	date = Column( DateTime )
 
