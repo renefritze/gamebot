@@ -113,6 +113,7 @@ class Main:
 					self.SendUsers( args[0], socket )
 				if args[1] == 'chart':
 					self.ChartTest()
+					socket.send('sayprivate %s done \n'%(args[0]))
 		if command == "ADDUSER" and len(args) > 2:
 			self.db.AddUser(args[0], args[1], args[2] )
 			self.db.StartUsersession( args[0] )
