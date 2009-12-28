@@ -143,6 +143,6 @@ class Main:
 
 	def ChartTest(self):
 		import charts
-		chart = charts.Charts( self.db, "/tmp/sl/" )
-		chart.NewUsers()
+		chart = charts.Charts( self.db, "/tmp/sl" )
+		chart.All()
 
