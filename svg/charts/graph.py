@@ -1,5 +1,5 @@
 #!python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from operator import itemgetter
 from itertools import islice
@@ -468,14 +468,14 @@ class Graph(object):
 		text.text = self.graph_title
 
 	def draw_graph_subtitle(self):
-		y_subtitle_options = [subtitle_font_size, title_font_size+10]
+		y_subtitle_options = [self.subtitle_font_size, self.title_font_size+10]
 		y_subtitle = y_subtitle_options[self.show_graph_title]
 		text = etree.SubElement(self.root, 'text', {
 			'x': str(self.width/2),
 			'y': str(y_subtitle),
 			'class': 'subTitle',
 			})
-		text.text = self.graph_title
+		text.text = self.graph_subtitle
 
 	def draw_x_title(self):
 		y = self.graph_height + self.border_top + self.x_title_font_size
