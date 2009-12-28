@@ -19,6 +19,7 @@ class S44DB(object):
 		Constructor
 		'''
 		self.engine = create_engine('mysql://%s:%s@localhost/%s'%(dbuser,dbpw,dbname), echo=False)
+		
 		self.metadata = Base.metadata
 		self.metadata.bind = self.engine
 		self.metadata.create_all(self.engine)

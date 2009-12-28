@@ -6,6 +6,8 @@ from utilities import *
 from time import *
 from os import system
 from s44db import S44DB
+import sys, os
+from svg.charts.plot import Plot
 
 class Main:
 	chans = []
@@ -109,6 +111,8 @@ class Main:
 						self.SendMetric( args[0], socket )
 				if args[1] == "users":
 					self.SendUsers( args[0], socket )
+				if args[1] == 'chart':
+					self.ChartTest()
 		if command == "ADDUSER" and len(args) > 2:
 			self.db.AddUser(args[0], args[1], args[2] )
 			self.db.StartUsersession( args[0] )
@@ -134,4 +138,22 @@ class Main:
 		self.db = S44DB(parselist(self.app.config["dbuser"],',')[0] ,
                       parselist(self.app.config["dbpw"],',')[0],
                       parselist(self.app.config["dbname"],',')[0] )
-		#self.db.PrintAll()
+		if not self.db:
+			raise SystemExit(-1)
+
+	def ChartTest(self):
+		g = Plot({
+			'min_x_value': 0,
+			'min_y_value': 0,
+			'area_fill': True,
+			'stagger_x_labels': True,
+			'stagger_y_labels': True,
+			'show_x_guidelines': True
+		})
+		g.add_data({'data': [1, 25, 2, 30, 3, 45], 'title': 'series 1'})
+		g.add_data({'data': [1,30, 2, 31, 3, 40], 'title': 'series 2'})
+		g.add_data({'data': [.5,35, 1, 20, 3, 10.5], 'title': 'series 3'})
+		res = g.burn()
+		f = open(r'Plot.py.svg', 'w')
+		f.write(res)
+		f.close()
