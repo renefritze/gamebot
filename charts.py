@@ -83,20 +83,21 @@ class Charts:
 		ret = dict()
 		base = dict()
 		valid = []
-		for i in range(32,45):
+		for i in range(23,45):
 			valid.append( '0.%d'%i )
 		revs_q = session.query( LobbyRevision ).filter( LobbyRevision.revision.in_( valid ) )
 		for rev in revs_q.all():
 			ret[rev.revision] = []
-			base[rev.revision] = revs_q.filter( LobbyRevision.revision == rev.revision ).count()
+			base[rev.revision] = session.query( User ).filter( User.lobbyrev_id == rev.id ).count()
 		end = begin + period
 		while end < datetime.now():
 			updates = session.query( LobbyUpdate ).filter( LobbyUpdate.date >= end ).all()
 			current = base.copy()
 			for update in updates:
 				#to get the current we have to 'update backwards'
-				if update.oldrev.revision in valid and update.newrev.revision in valid :
+				if update.oldrev.revision in valid:
 					current[update.oldrev.revision] += 1
+				if update.newrev.revision in valid :
 					current[update.newrev.revision] -= 1
 			for rev in revs_q.all():
 				ret[rev.revision].append( end.strftime(self.dateformat) )
@@ -113,6 +114,7 @@ class Charts:
 			g = self.GetGraph( 'SpringLobby revisions', period )
 			g.width = 1024
 			g.height = 800
+			g.area_fill = False
 
 			for name in data.keys():
 				g.add_data({'data': data[name], 'title': name})
@@ -184,8 +186,8 @@ class Charts:
 		periods.append ( [lastyear, inc, 'Last year'] )
 		#self.NewUsers(periods)
 		#self.NewGameUsers(periods,'s44')
-		#self.LobbyRevs(periods)
-		self.CurrentSLrevs(10)
+		self.LobbyRevs(periods)
+		#self.CurrentSLrevs(10)
 		
 		
 		
