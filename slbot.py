@@ -8,6 +8,11 @@ from os import system
 from s44db import S44DB
 import sys, os
 from svg.charts.plot import Plot
+from notices import Notices
+
+default_update_notice = """Please update your SpringLobby.\n
+http://springlobby.info/wiki/springlobby/Install has all the info you\'ll need. If you have any questions, please ask in #springlobby"""
+bot_msg = "This is an automated message, do not reply."
 
 class Main:
 	chans = []
@@ -58,15 +63,11 @@ class Main:
 	
 
 		#update notificatiosn below
-		if revision == 'v0.0.1-svn':
-			socket.send('sayprivate '+source_nick + ' ' + self.update_notice +'\n')
-		else :
-			revision = revision.split('.')
-			if len(revision) > 3:
-				if revision[3].isdigit() :
-					revision = int(revision[3])
-					if revision < self.min_revision :
-						socket.send('sayprivate '+source_nick + ' ' + self.update_notice +'\n' )
+		if self.notices.HasNotice( revision ):
+			for notice in self.notices.GetNotices( revision ):
+				for line in notice.text.split('\\n'):
+					socket.send( 'sayprivate %s %s \n'%(source_nick, line) )
+			socket.send( 'sayprivate %s %s \n'%(source_nick, bot_msg) )
 
 	def SendLobbyMetric(self, nick, socket, lobby ):
 		lobbyusers = self.db.GetLobbyUsers( lobby )
@@ -99,22 +100,35 @@ class Main:
 			elif chan in self.chans :
 				self.db.SetPrimaryGame( user, 'multiple' )
 		if command == "SAIDPRIVATE" and len(args) > 1:
-			if args[0] in self.admins:
-				if args[1] == "metricsave":
+			if args[0] in self.admins and args[1].startswith('!'):
+				command = args[1][1:]
+				if command == "metricsave":
 					self.ondestroy()
-				if args[1] == "metric":
+				if command == "metric":
 					if len( args ) > 2:
 						if args[2] == 'sl':
 							args[2] = 'SpringLobby'
 						self.SendLobbyMetric( args[0], socket, args[2] )
 					else:
 						self.SendMetric( args[0], socket )
-				if args[1] == "users":
+				if command == "users":
 					self.SendUsers( args[0], socket )
-				if args[1] == 'chart':
+				if command == 'chart':
 					self.ChartTest()
 					socket.send('sayprivate %s done \n'%(args[0]))
+				if command == 'addnotice':
+					if len( args ) < 4:
+						socket.send('sayprivate %s addnotice revision text \n'%(args[0]))
+					else:
+						rev = args[2]
+						text = ' '.join(args[3:])
+						if self.notices.AddNotice( rev, text ):
+							socket.send('sayprivate %s notice added\n'%(args[0]))
+						else:
+							socket.send('sayprivate %s addnotice failed\n'%(args[0]))
+						
 		if command == "ADDUSER" and len(args) > 2:
+			assert self.db
 			self.db.AddUser(args[0], args[1], args[2] )
 			self.db.StartUsersession( args[0] )
 		if command == "REMOVEUSER" and len(args) > 0:
@@ -140,7 +154,8 @@ class Main:
                       parselist(self.app.config["dbpw"],',')[0],
                       parselist(self.app.config["dbname"],',')[0] )
 		if not self.db:
-			raise SystemExit(-1)
+			raise exit( 0 )
+		self.notices = Notices( self.db )
 
 	def ChartTest(self):
 		import charts

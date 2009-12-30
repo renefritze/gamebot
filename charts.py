@@ -184,10 +184,10 @@ class Charts:
 		lastyear = today - timedelta(days=365)
 		inc = timedelta(days=30)
 		periods.append ( [lastyear, inc, 'Last year'] )
-		#self.NewUsers(periods)
-		#self.NewGameUsers(periods,'s44')
+		self.NewUsers(periods)
+		self.NewGameUsers(periods,'s44')
 		self.LobbyRevs(periods)
-		#self.CurrentSLrevs(10)
+		self.CurrentSLrevs(20)
 		
 		
 		

@@ -106,4 +106,11 @@ class OperatingSystem(Base):
 
 	def __init__(self,name):
 		self.name = name
-        
+
+class Notice(Base):
+	__tablename__ = 'notices'
+	id = Column( Integer, primary_key=True )
+	text = Column( Text )
+	lobbyrev_id = Column( Integer, ForeignKey( 'lobbyrevisions.id' ) )
+	lobbyrev = relation( LobbyRevision, backref='notices', primaryjoin=LobbyRevision.id == lobbyrev_id )
+	
