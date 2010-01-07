@@ -94,11 +94,21 @@ class Main:
 	def oncommandfromserver(self,command,args,socket):
 		if command == "JOINED" :
 			chan = args[0]
-			user = args[1]
-			if chan == "s44" :			
-				self.db.SetPrimaryGame( user, 's44' )
+			nick = args[1]
+			if chan == "s44" or chan == 'slmac':			
+				self.db.SetPrimaryGame( nick, 's44' )
+				try:
+					user = self.db.GetUser( nick )
+					print '%s -- %d -- %d'%(nick, user.welcome_sent,user.rank )
+					if not user.welcome_sent and user.rank < 1:
+						socket.send('say %s hello first time visitor %s\n'%(chan,nick) )
+						user.welcome_sent = True
+						self.db.SetUser( user )
+				except Exception, e:
+					print(e)
+					
 			elif chan in self.chans :
-				self.db.SetPrimaryGame( user, 'multiple' )
+				self.db.SetPrimaryGame( nick, 'multiple' )
 		if command == "SAIDPRIVATE" and len(args) > 1:
 			if args[0] in self.admins and args[1].startswith('!'):
 				command = args[1][1:]
@@ -137,6 +147,18 @@ class Main:
 			print args, command
 			if args[1] == "stats.report":
 				self.CmdStatsReport( socket, command, args, 'SpringLobby' )
+		if command == "CLIENTSTATUS":
+			if len(args)>2:
+				nick = args[0]
+				status = int(args[1])
+				try:
+					user = self.db.GetUser( nick )
+					user.rank = getrank( status ) -1
+					self.db.SetUser( user )
+
+				except:
+					print 'clientstatus update failed for %s'%(args[0])
+				
 
 	def ondestroy( self ):
 		print "saving files"

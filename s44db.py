@@ -9,7 +9,21 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
 from datetime import datetime
 from dbentities import *
-        
+
+class ElementExistsException( Exception ):
+	def __init__(self, element):
+		self.element = element
+
+	def __str__(self):
+		return "Element %s already exists in db"%(self.element)
+
+class ElementNotFoundException( Exception ):
+	def __init__(self, element):
+		self.element = element
+
+	def __str__(self):
+		return "Element %s not found in db"%(self.element)
+
 class S44DB(object):
 	'''
 	classdocs
@@ -48,8 +62,22 @@ class S44DB(object):
 		session.add( user )
 		session.commit()
 		session.close()
+	def GetUser( self, nick ):
+		session = self.sessionmaker()
 
-	def UpdateUser(self, nick, lobbyname, lobbyrev_name, osname ):
+		user = session.query( User ).filter( User.nick == nick ).first()
+		if not user: #new user
+			raise ElementNotFoundException(nick)
+		session.close()
+		return user
+
+	def SetUser(self, user ):
+		session = self.sessionmaker()
+		session.add( user )
+		session.commit()
+		session.close()
+	
+	def UpdateUser(self, nick, lobbyname, lobbyrev_name, osname, rank ):
 		session = self.sessionmaker()
 
 		user = session.query( User ).filter( User.nick == nick ).first()

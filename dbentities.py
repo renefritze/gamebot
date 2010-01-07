@@ -18,6 +18,8 @@ class User(Base):
 	lobbyrev_id = Column( Integer, ForeignKey( 'lobbyrevisions.id' ) )
 	os_id = Column( Integer, ForeignKey( 'os.id' ) )
 	primary_game = Column( String( 50 ) )
+	rank = Column( Integer )
+	use_buddybot = Column( Boolean )
 
 	lobby = relation( 'Lobby', backref=backref( 'users', order_by=id) )
 	lobbyrev = relation( 'LobbyRevision', backref=backref( 'users', order_by=id) )
@@ -30,6 +32,8 @@ class User(Base):
 		self.country = country
 		self.cpu = cpu
 		self.primary_game = 'none'
+		self.rank = 0
+		self.use_buddybot = True
      
         
 class Usersession(Base):
