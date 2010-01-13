@@ -77,7 +77,7 @@ class S44DB(object):
 		session.commit()
 		session.close()
 	
-	def UpdateUser(self, nick, lobbyname, lobbyrev_name, osname, rank ):
+	def UpdateUser(self, nick, lobbyname, lobbyrev_name, osname ):
 		session = self.sessionmaker()
 
 		user = session.query( User ).filter( User.nick == nick ).first()
@@ -235,11 +235,11 @@ class S44DB(object):
 		ret = dict()
 		session = self.sessionmaker()
 		lobbies = session.query( Lobby ).all()
-
-		ret['all'] = session.query( Usersession ).count()
+		
+		ret['all'] = session.query( Usersession ).count() 
 
 		for lobby in lobbies:
-			ret[lobby.name] = session.query(Usersession, User).filter(Usersession.user_id == User.id ).filter(lobby.id == User.lobby_id ).count()
+			ret[lobby.name] = session.query(Usersession, User).filter(Usersession.user_id == User.id ).filter(lobby.id == User.lobby_id ).count() 
 		session.close()
 		return ret
 

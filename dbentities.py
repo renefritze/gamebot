@@ -20,6 +20,7 @@ class User(Base):
 	primary_game = Column( String( 50 ) )
 	rank = Column( Integer )
 	use_buddybot = Column( Boolean )
+	welcome_sent = Column( Boolean )
 
 	lobby = relation( 'Lobby', backref=backref( 'users', order_by=id) )
 	lobbyrev = relation( 'LobbyRevision', backref=backref( 'users', order_by=id) )
@@ -34,6 +35,7 @@ class User(Base):
 		self.primary_game = 'none'
 		self.rank = 0
 		self.use_buddybot = True
+		self.welcome_sent = False
      
         
 class Usersession(Base):

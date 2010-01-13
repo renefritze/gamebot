@@ -17,38 +17,13 @@ bot_msg = "This is an automated message, do not reply."
 class Main:
 	chans = []
 	admins = []
-	
-	def SendUsers(self, nick, socket ):
-		users = self.db.GetGameUsers( 's44' )
-		users.sort(key=str.lower)
-		num = 0
-		line = ""
-		socket.send('sayprivate %s %d users found:\n'%(nick,len(users) ))
-		for user in users :
-			line += user + "\t"
-			num += 1
-			if num % 10 == 0 :
-				socket.send('sayprivate %s %s \n'%(nick,line ))
-				line = ""
-		socket.send('sayprivate %s %s \n'%(nick,line ))
 
-	def SendMetric(self, nick, socket ):
-		users = self.db.GetGameUsers( 's44' )
+	def AddTascUser(self, user, msg ):
+		#'[EPIC]Alex2be4life is using TASClient 0.57 rev 754 on XP. Scripts=True News=False'
+		#[user]							2		3	      5     7
+		self.db.UpdateUser(user, 'TASClient', msg[3], 'MicrosoftWindowsNT')
+		print '%s - TASC %s'%(user,msg[3])
 		
-
-		socket.send('sayprivate %s total s44 only joiners: %s \n'%(nick,len(users)))
-		#sleep(0.05)
-		#percent = len(self.nicklist_s44)/ float(len(self.nicklist))
-		#socket.send('sayprivate %s total : %s \n'%(nick,len(self.nicklist)))
-		#sleep(0.05)
-		#socket.send('sayprivate %s percentage of sl: %f \n'%(nick,percent))
-		#sleep(0.05)
-		#percent = len(self.ubuntu_list)/ float(len(self.nicklist_s44))
-		#socket.send('sayprivate %s percentage (of sl users) on linux: %f \n'%(nick,percent))
-		#sleep(0.05)
-		#percent = len(self.win_list)/ float(len(self.nicklist_s44))
-		#socket.send('sayprivate %s percentage (of sl users) on other: %f (%d abs)\n'%(nick,percent,len(self.win_list)))
-
 	def CmdStatsReport(self, socket, cmd_name, cmd_params, lobby):
 		source_nick = cmd_params[0]
 		#socket.send('say %s %s %s \n'%(self.stats_channel, source_nick, ' '.join(cmd_params) ))
@@ -81,34 +56,15 @@ class Main:
 		stats = self.db.GetSessionStats()
 		total = stats['all']
 		for key,num in stats.items():
-			socket.send('sayprivate %s %8i\t %s sessions \t(%5f)\n'%(nick, num, key, ( num / float(total) ) * 100 ) )
+			socket.send('sayprivate %s %8f\t %s sessions \t(%5f)\n'%(nick, num, key, ( num / float(total) ) * 100 ) )
 		from datetime import datetime,timedelta
 		since = datetime.now() - timedelta(7)
 		socket.send('sayprivate %s %d updates since %s\n'%(nick,self.db.GetUpdates( since ), str(since) ) )
 		stats = self.db.GetOSstats(lobby)
 		for key,num in stats.items():
 			socket.send('sayprivate %s %d sl users on %s\n'%(nick, num, key) )
-		from datetime import datetime,timedelta
-	
 
 	def oncommandfromserver(self,command,args,socket):
-		if command == "JOINED" :
-			chan = args[0]
-			nick = args[1]
-			if chan == "s44" or chan == 'slmac':			
-				self.db.SetPrimaryGame( nick, 's44' )
-				try:
-					user = self.db.GetUser( nick )
-					print '%s -- %d -- %d'%(nick, user.welcome_sent,user.rank )
-					if not user.welcome_sent and user.rank < 1:
-						socket.send('say %s hello first time visitor %s\n'%(chan,nick) )
-						user.welcome_sent = True
-						self.db.SetUser( user )
-				except Exception, e:
-					print(e)
-					
-			elif chan in self.chans :
-				self.db.SetPrimaryGame( nick, 'multiple' )
 		if command == "SAIDPRIVATE" and len(args) > 1:
 			if args[0] in self.admins and args[1].startswith('!'):
 				command = args[1][1:]
@@ -147,6 +103,11 @@ class Main:
 			print args, command
 			if args[1] == "stats.report":
 				self.CmdStatsReport( socket, command, args, 'SpringLobby' )
+		if command == "SAIDEX" and len(args) > 2:
+			chan = args[0]
+			user = args[1]
+			if chan == 'tasclient':
+				self.AddTascUser( user, args[2:] )
 		if command == "CLIENTSTATUS":
 			if len(args)>2:
 				nick = args[0]
