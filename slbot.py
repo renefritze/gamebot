@@ -44,12 +44,14 @@ class Main:
 					socket.send( 'sayprivate %s %s \n'%(source_nick, line) )
 			socket.send( 'sayprivate %s %s \n'%(source_nick, bot_msg) )
 
-	def SendLobbyMetric(self, nick, socket, lobby ):
-		lobbyusers = self.db.GetLobbyUsers( lobby )
+	def SendLobbyMetric(self, nick, socket ):
 		allusers = self.db.GetAllUsers() * 1.0
-		if lobbyusers > 0:
-			socket.send('sayprivate %s percentage of %s users:\t\t %f\n'%(nick, lobby, lobbyusers/allusers ) )
-		socket.send('sayprivate %s absolute number of %s users:\t %d\n'%(nick, lobby, lobbyusers ) )
+		lobbies = self.db.GetLobbyNames()
+		for lobby in lobbies:
+			lobbyusers = self.db.GetLobbyUsers( lobby )
+			if allusers > 0:
+				socket.send('sayprivate %s percentage of %s users:\t\t %f\n'%(nick, lobby, lobbyusers/allusers*100.0 ) )
+				socket.send('sayprivate %s absolute number of %s users:\t %d\n'%(nick, lobby, lobbyusers ) )	
 		socket.send('sayprivate %s total number of users:\t\t\t\t\t %d\n'%(nick, allusers ) )
 
 		socket.send('sayprivate %s session stats:\n'%(nick) )
@@ -72,9 +74,7 @@ class Main:
 					self.ondestroy()
 				if command == "metric":
 					if len( args ) > 2:
-						if args[2] == 'sl':
-							args[2] = 'SpringLobby'
-						self.SendLobbyMetric( args[0], socket, args[2] )
+						self.SendLobbyMetric( args[0], socket )
 					else:
 						self.SendMetric( args[0], socket )
 				if command == "users":

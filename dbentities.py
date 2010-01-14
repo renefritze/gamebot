@@ -54,7 +54,7 @@ class Usersession(Base):
 class Lobby(Base):
 	__tablename__ = 'lobbies'
 	id = Column( Integer, primary_key=True )
-	name = Column( String(20) )
+	name = Column( String(40) )
 
 	def __init__(self,name):
 		self.name = name

@@ -225,6 +225,7 @@ class S44DB(object):
 			ret.append( user.nick )
 		session.close()
 		return ret
+		
 	def GetUpdates( self, since ):
 		session = self.sessionmaker()
 		num = session.query( LobbyUpdate ).filter( LobbyUpdate.date >= since ).count()
@@ -250,6 +251,15 @@ class S44DB(object):
 		lobby = session.query( Lobby ).filter( Lobby.name == lobbyname ).first()
 		for os in osses:
 			ret[os.name] = session.query(OperatingSystem,User).filter(lobby.id == User.lobby_id ).filter(os.id == User.os_id ).count() / len(osses)
+		session.close()
+		return ret
+
+	def GetLobbyNames(self):
+		ret = []
+		session = self.sessionmaker()
+		lobbies = session.query( Lobby ).all()
+		for lobby in lobbies:
+			ret.append( lobby.name )
 		session.close()
 		return ret
          
