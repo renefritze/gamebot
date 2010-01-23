@@ -36,6 +36,9 @@ class Main:
 			elif args[2] == "!%slink"%self.faqcmd and args[1] in self.admins and len(args) > 4:
 				self.addFaqLink( args[3], args[4:] )
 				return
+			elif args[2] == "!%shelp"%self.faqcmd:
+				socket.send("SAY %s http://springlobby.info/projects/faqbot/wiki/Faqbot\n" % (args[0] ))
+				return
 			else:
 				msg = " ".join( args[2:] )
 				for phrase in self.faqlinks:
