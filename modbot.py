@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
-from colors import *
-from ParseConfig import *
+from tasbot.ParseConfig import *
 import string
-from utilities import *
+from tasbot.utilities import *
 from time import *
 from os import system
 from s44db import S44DB
 import sys, os
-from svg.charts.plot import Plot
 from notices import Notices
+from charts import *
 
-class Main:
-	chans = []
-	admins = []
+from tasbot.Plugin import IPlugin
+
+class Main(IPlugin):
+        def __init__(self,name,tasclient):
+                IPlugin.__init__(self,name,tasclient)
+		self.chans = []
+		self.admins = []
 
 	def onload(self,tasc):
 		self.app = tasc.main
@@ -57,7 +60,7 @@ class Main:
 					user = self.db.GetUser( nick )
 					print '%s -- %d -- %d'%(nick, user.welcome_sent,user.rank )
 					if not user.welcome_sent and user.rank < 1:
-						socket.send('say %s hello first time visitor %s\n'%(chan,nick) )
+						#socket.send('say %s hello first time visitor %s\n'%(chan,nick) )
 						user.welcome_sent = True
 						self.db.SetUser( user )
 				except Exception, e:
@@ -73,6 +76,10 @@ class Main:
 				if command == "users":
 					self.SendUsers( args[0], socket )
 				if command == 'chart':
+					socket.send('sayprivate %s creating charts, hold on\n'%(args[0]))
 					self.ChartTest()
 					socket.send('sayprivate %s done \n'%(args[0]))
 				
+	def ChartTest(s):
+		charts = Charts( s.db, 'charts' )
+		charts.All()
